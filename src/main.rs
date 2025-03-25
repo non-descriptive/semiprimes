@@ -64,7 +64,7 @@ fn get_seq_mark(valid: bool) -> ColoredString {
     if valid {
         "*".red()
     } else {
-        "".into()
+        " ".into()
     }
 }
 fn get_adj_mark(valid: bool) -> ColoredString {
@@ -125,7 +125,7 @@ fn main() {
 
         let ws = N.to_string().len();
         let wb = (N * N).to_string().len();
-        let mmod = wb.max(4);
+        let mmod = wb.max(6);
 
         println!("N: {N} = a + b = p * q = {p} * {q} ");
         println!("M = a * b");
@@ -154,10 +154,10 @@ fn main() {
         println!();
         {
             // header section
-            // "{rl_str}|{b_str}|{a_str}|{t_str}|{pp_str}|{pp_mod_str}|{tn_str}|{M_str}|{rr_str}"
+            // "{rl_str}|{b_str}|{a_str}|{t_str}|{pp_str}|#{pp_mod_str}|*{tn_str}|{M_str}|{rr_str}"
             println!(
-                " {:^ws$} | {:^ws$} | {:^ws$} | {:^ws$} | {:^wb$} |{:^mmod$}| {:^ws$} | {:^wb$} | {:^ws$}",
-                "rl", "b", "a", "t", "pp", "pp % N", "tn", "M", "rr"
+                " {:^ws$} | {:^ws$} | {:^ws$} | {:^ws$} | {:^wb$} |{} {:^mmod$} | {}{:^ws$} | {:^wb$} | {:^ws$}",
+                "rl", "b", "a", "t", "pp"," ", "pp % N", " ","tn", "M", "rr"
             );
         }
 
