@@ -60,7 +60,13 @@ fn is_pq_div(s: ColoredString, n: u64, p: u64, q: u64) -> ColoredString {
     }
     return s;
 }
-
+fn get_seq_mark(valid: bool) -> ColoredString {
+    if valid {
+        "*".red()
+    } else {
+        "".into()
+    }
+}
 fn main() {
     let matches = command!()
         .arg(
@@ -84,7 +90,7 @@ fn main() {
     if let Some(&N) = matches.get_one::<u64>("N") {
         let (p, q) = get_pq(N);
         if p == N || !is_prime(&q) {
-            eprint!("is not a semiprime");
+            eprintln!("is not odd semiprime");
             return;
         }
         let mut cache: Vec<Option<bool>> = vec![None; (N as f64).sqrt().floor() as usize];
@@ -127,6 +133,16 @@ fn main() {
             is_full_sqr(is_pq_div(" p*p ".into(), p * p, p, q), p * p),
             is_full_sqr(is_pq_div(" q*q ".into(), q * q, p, q), q * q),
         );
+        fn get_seq(p: u64, n: u64) -> String {
+            (0..p)
+                .map(|k| n + 2 * k)
+                .map(|v| v.to_string())
+                .collect::<Vec<_>>()
+                .join("+")
+        }
+        let n = if p < q { q - p + 1 } else { 1 };
+        let mut k = 0;
+        println!("{} - part of {N}={}", get_seq_mark(true), get_seq(p, n));
         println!();
         {
             // header section
@@ -136,6 +152,7 @@ fn main() {
                 "rl", "b", "a", "t", "pp", "pp % N", "tn", "M", "rr"
             );
         }
+
         for i in lo..hi {
             let a = i;
             let a_fmt = format!(" {a:ws$} ");
@@ -166,7 +183,13 @@ fn main() {
             let t1 = t0 + 1;
 
             let tn = N - 1 - t;
-            let tn_fmt = std::format!(" {tn:ws$} ");
+            let in_seq = n + 2 * k == tn && k < p;
+            if in_seq {
+                k += 1;
+            };
+            let tnseq = get_seq_mark(in_seq);
+
+            let tn_fmt = std::format!(" {tnseq}{tn:ws$} ");
             let mut tn_str = is_full_sqr(is_pq_div(tn_fmt.into(), tn, p, q), tn);
 
             let pp = t0 * t1;
