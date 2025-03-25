@@ -11,7 +11,7 @@ use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use colored::{ColoredString, Colorize};
 
 fn is_prime(&num: &u64) -> bool {
-    let sqrt = (num as f64).sqrt().floor() as u64;
+    let sqrt = num.isqrt();
     (2..=sqrt).all(|c| num % c != 0)
 }
 
@@ -19,7 +19,7 @@ fn get_pq(num: u64) -> (u64, u64) {
     if is_prime(&num) {
         return (num, 1);
     }
-    let sqrt = (num as f64).sqrt().floor() as u64;
+    let sqrt = num.isqrt();
     for p in (3..=sqrt).filter(is_prime) {
         let q = num / p;
         if q * p == num {
@@ -35,7 +35,7 @@ fn is_full_sqr(s: ColoredString, num: u64) -> ColoredString {
     if num == 0 {
         return s;
     }
-    let sqrt = (num as f64).sqrt().floor() as u64;
+    let sqrt = num.isqrt();
     let mut s: ColoredString = s;
     if sqrt * sqrt == num {
         s = s.yellow();
@@ -67,6 +67,13 @@ fn get_seq_mark(valid: bool) -> ColoredString {
         "".into()
     }
 }
+fn get_adj_mark(valid: bool) -> ColoredString {
+    if valid {
+        "#".red()
+    } else {
+        " ".into()
+    }
+}
 fn main() {
     let matches = command!()
         .arg(
@@ -93,7 +100,7 @@ fn main() {
             eprintln!("is not odd semiprime");
             return;
         }
-        let mut cache: Vec<Option<bool>> = vec![None; (N as f64).sqrt().floor() as usize];
+        let mut cache: Vec<Option<bool>> = vec![None; N.isqrt() as usize];
         let mut lines = N / 2 + (N & 1);
         let mut maxlines = lines;
         if let Some(&mln) = matches.get_one::<u64>("maxlines") {
@@ -143,6 +150,7 @@ fn main() {
         let n = if p < q { q - p + 1 } else { 1 };
         let mut k = 0;
         println!("{} - part of {N}={}", get_seq_mark(true), get_seq(p, n));
+        println!("{} - x*(x+1)", get_adj_mark(true));
         println!();
         {
             // header section
@@ -187,20 +195,28 @@ fn main() {
             if in_seq {
                 k += 1;
             };
-            let tnseq = get_seq_mark(in_seq);
-
-            let tn_fmt = std::format!(" {tnseq}{tn:ws$} ");
+            let tn_fmt = std::format!(" {tn:ws$} ");
             let mut tn_str = is_full_sqr(is_pq_div(tn_fmt.into(), tn, p, q), tn);
+            let mut tnseq = get_seq_mark(in_seq);
+            if let Some(color) = tn_str.bgcolor {
+                tnseq = tnseq.on_color(color);
+            }
 
             let pp = t0 * t1;
             let pp_fmt = std::format!(" {pp:wb$} ");
             let mut pp_str = is_full_sqr(is_pq_div(pp_fmt.into(), pp, p, q), pp);
 
             let pp_mod = pp % N;
+            let pp_sqrt = pp_mod.isqrt();
             let pp_mod_fmt = std::format!(" {pp_mod:mmod$} ");
+
             let mut pp_mod_str = is_full_sqr(is_pq_div(pp_mod_fmt.into(), pp_mod, p, q), pp_mod);
+            let mut pp_adj_mark = get_adj_mark(pp_sqrt * (pp_sqrt + 1) == pp_mod);
+            if let Some(color) = pp_mod_str.bgcolor {
+                pp_adj_mark = pp_adj_mark.on_color(color);
+            }
             println!(
-                "{rl_str}|{b_str}|{a_str}|{t_str}|{pp_str}|{pp_mod_str}|{tn_str}|{M_str}|{rr_str}"
+                "{rl_str}|{b_str}|{a_str}|{t_str}|{pp_str}|{pp_adj_mark}{pp_mod_str}|{tnseq}{tn_str}|{M_str}|{rr_str}"
             );
         }
     }
