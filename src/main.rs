@@ -179,7 +179,6 @@ fn main() {
             let mut rl_str = is_full_sqr(is_pq_div(rl_fmt.into(), rl, p, q), rl);
 
             let rr = M % N;
-            let rr = (b * b) % N;
             let rr_fmt = std::format!(" {rr:ws$} ");
             let mut rr_str = is_full_sqr(is_pq_div(rr_fmt.into(), rr, p, q), rr);
 
